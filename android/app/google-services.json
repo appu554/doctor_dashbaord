@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "8673706602",
+    "project_id": "cardiofit-905a8",
+    "storage_bucket": "cardiofit-905a8.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:8673706602:android:71b555cddd1b9f415f8013",
+        "android_client_info": {
+          "package_name": "com.mycompany.cardiofitdashboard"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "8673706602-gro1e29vspk680hehss3l1ov4m0qvg6m.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD6kxz5qQRx0XIcGfuXS6eDv4ijaUGbv4U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "8673706602-gro1e29vspk680hehss3l1ov4m0qvg6m.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
