@@ -1,7 +1,4 @@
-import 'dart:math';
 
-import 'package:cardiofit_dashboard/pages/admin_dashboard/admin_dashboard.dart';
-import 'package:cardiofit_dashboard/pages/admin_dashboard/components/admin_view_dashboard.dart';
 import 'package:cardiofit_dashboard/pages/admin_dashboard/doctor_view/constant.dart';
 import 'package:cardiofit_dashboard/services/authentication.dart';
 import 'package:firebase_auth/firebase_auth.dart';

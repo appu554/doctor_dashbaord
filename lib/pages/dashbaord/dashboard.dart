@@ -1,7 +1,5 @@
 import 'package:cardiofit_dashboard/index.dart';
-import 'package:cardiofit_dashboard/pages/dashbaord/components/animated_items.dart';
 import 'package:cardiofit_dashboard/pages/dashbaord/components/dashboard.dart';
-import 'package:cardiofit_dashboard/pages/dashbaord/components/ready_grid.dart';
 import 'package:cardiofit_dashboard/pages/dashbaord/deivice_view/active_device.dart';
 import 'package:cardiofit_dashboard/pages/dashbaord/deivice_view/all_devices.dart';
 import 'package:cardiofit_dashboard/pages/dashbaord/patient_view/activepatient.dart';
@@ -11,8 +9,6 @@ import 'package:cardiofit_dashboard/services/authentication.dart';
 import 'package:flutter/material.dart';
 import 'package:ready/ready.dart';
 
-import 'ready_list.dart';
-import 'responsive.dart';
 
 class DashBoardExample extends StatelessWidget {
   final ValueChanged<ThemeMode> onModeChanged;

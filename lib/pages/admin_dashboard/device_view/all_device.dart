@@ -1,21 +1,16 @@
 import 'dart:async';
-import 'dart:convert';
-import 'dart:html';
 
 import 'package:cardiofit_dashboard/flutter_flow/flutter_flow_theme.dart';
 import 'package:cardiofit_dashboard/flutter_flow/flutter_flow_util.dart';
 import 'package:cardiofit_dashboard/flutter_flow/flutter_flow_widgets.dart';
-import 'package:cardiofit_dashboard/pages/admin_dashboard/device_view/device_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:hasura_connect/hasura_connect.dart';
-import 'package:provider/provider.dart';
 
 import 'adddevicemodel.dart';
 export 'adddevicemodel.dart';
-import 'package:http/http.dart' as http;
 
 class AddDeviceView extends StatefulWidget {
   @override

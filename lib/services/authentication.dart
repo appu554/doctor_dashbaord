@@ -1,5 +1,4 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class Authentication {
   /// checks whether email looks something like "name@mail.com"

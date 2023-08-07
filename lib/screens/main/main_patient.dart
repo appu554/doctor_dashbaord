@@ -1,6 +1,5 @@
 import 'package:cardiofit_dashboard/controllers/MenuAppController.dart';
 import 'package:cardiofit_dashboard/responsive.dart';
-import 'package:cardiofit_dashboard/screens/dashboard/dashboard_screen.dart';
 import 'package:cardiofit_dashboard/screens/dashboard/patient_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';

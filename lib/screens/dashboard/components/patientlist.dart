@@ -1,5 +1,4 @@
 import 'package:auto_size_text/auto_size_text.dart';
-import 'package:cardiofit_dashboard/constants.dart';
 import 'package:cardiofit_dashboard/flutter_flow/flutter_flow_theme.dart';
 import 'package:cardiofit_dashboard/flutter_flow/flutter_flow_util.dart';
 import 'package:cardiofit_dashboard/flutter_flow/flutter_flow_widgets.dart';
@@ -18,7 +17,7 @@ class PatientListView extends StatelessWidget {
           children: [
             Text(
               "My Patient",
-              style: Theme.of(context).textTheme.subtitle1,
+              style: Theme.of(context).textTheme.titleMedium,
             ),
           ],
         ),

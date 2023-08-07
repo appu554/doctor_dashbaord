@@ -5,8 +5,6 @@ import 'package:flutter/material.dart';
 import '../../constants.dart';
 import 'components/header.dart';
 
-import 'components/recent_files.dart';
-import 'components/storage_details.dart';
 
 class DashboardScreen extends StatelessWidget {
   @override

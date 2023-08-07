@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:cardiofit_dashboard/pages/admin_dashboard/admin_dashboard.dart';
 import 'package:cardiofit_dashboard/pages/dashbaord/dashboard.dart';
-import 'package:cardiofit_dashboard/screens/main/main_screen.dart';
 import 'package:cardiofit_dashboard/services/authentication.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -11,9 +10,6 @@ import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
-import 'login_model.dart';
 export 'login_model.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;

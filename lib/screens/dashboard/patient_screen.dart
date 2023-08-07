@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 
 import '../../constants.dart';
 import 'components/header.dart';
-import 'components/my_files.dart';
 
 class Patientview extends StatelessWidget {
   @override

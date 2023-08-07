@@ -1,7 +1,6 @@
 import 'package:cardiofit_dashboard/constants.dart';
 import 'package:cardiofit_dashboard/flutter_flow/flutter_flow_theme.dart';
 import 'package:cardiofit_dashboard/models/MyFiles.dart';
-import 'package:cardiofit_dashboard/responsive.dart';
 import 'package:flutter/material.dart';
 
 import 'file_info_card.dart';

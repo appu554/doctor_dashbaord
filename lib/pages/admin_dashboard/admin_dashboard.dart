@@ -2,11 +2,7 @@ import 'package:cardiofit_dashboard/pages/admin_dashboard/components/admin_view_
 import 'package:cardiofit_dashboard/pages/admin_dashboard/device_view/add_device.dart';
 import 'package:cardiofit_dashboard/pages/admin_dashboard/doctor_view/All_doctor_view.dart';
 import 'package:cardiofit_dashboard/pages/admin_dashboard/doctor_view/add_doctor.dart';
-import 'package:cardiofit_dashboard/pages/dashbaord/components/animated_items.dart';
-import 'package:cardiofit_dashboard/pages/dashbaord/components/dashboard.dart';
 import 'package:cardiofit_dashboard/pages/dashbaord/components/ready_grid.dart';
-import 'package:cardiofit_dashboard/pages/dashbaord/deivice_view/active_device.dart';
-import 'package:cardiofit_dashboard/pages/dashbaord/patient_view/activepatient.dart';
 import 'package:cardiofit_dashboard/pages/dashbaord/profile/profile.dart';
 import 'package:flutter/material.dart';
 import 'package:ready/ready.dart';

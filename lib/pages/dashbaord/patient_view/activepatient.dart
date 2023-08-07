@@ -28,33 +28,32 @@ class _ActicePatientState extends State<ActicePatient> {
   late Auth0Web _auth0Web;
 
   @override
-  Future<void> initState() async {
+  void initState() {
     super.initState();
     _auth0 = Auth0("dev-hfw6wda5wtf8l13c.au.auth0.com",
         "Y5u631Qz0f3yOfyB0F0GGFXLykNrltjL");
     _auth0Web = Auth0Web("dev-hfw6wda5wtf8l13c.au.auth0.com",
         "Y5u631Qz0f3yOfyB0F0GGFXLykNrltjL");
-
-    Credentials _credentials =
-        _auth0.credentialsManager.credentials() as Credentials;
-
-    if (_credentials.user == null) {
-      print('User is currently signed out!');
-    } else {
-      print('User is signed in!');
-      await _getData(_credentials);
-    }
+    _getData();
   }
 
   // int _currentSortColumn = 0;
   // bool _isSortAsc = true;
 
-  Future<String> _getData(Credentials credentials) async {
-    final userDocRef = credentials.user;
+  Future<String> _getData() async {
+    final _credentials = await _auth0.credentialsManager.credentials();
+
+    if (_credentials.user == null) {
+      print('User is currently signed out!');
+    } else {
+      print('User is signed in!');
+    }
+
+    final userDocRef = _credentials.user;
 
     print("userpresent :$userDocRef");
     var userid = userDocRef.sub;
-    String? idTokenResult = (credentials.idToken);
+    String? idTokenResult = (_credentials.idToken);
     print('$userid');
     print('claims : $idTokenResult.claims');
     setState(() {

@@ -82,16 +82,13 @@
 //   }
 // }
 
-import 'package:cardiofit_dashboard/firebase_options.dart';
 import 'package:cardiofit_dashboard/index.dart';
 import 'package:cardiofit_dashboard/pages/admin_dashboard/admin_dashboard.dart';
 
 import 'package:cardiofit_dashboard/pages/dashbaord/dashboard.dart';
 import 'package:cardiofit_dashboard/pages/login/auth0.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:ready/ready.dart';
 
