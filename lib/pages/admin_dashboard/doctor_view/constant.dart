@@ -15,7 +15,7 @@ class HasuraService {
         FirebaseFirestore.instance.collection('users').doc(user!.uid).get();
 
     print("userpresent :$user");
-    String idTokenResult = await (user.getIdToken(true));
+    String? idTokenResult = await (user.getIdToken(true));
     print('claims : $idTokenResult.claims');
 
     final response = await http.post(
@@ -48,7 +48,7 @@ class HasuraService {
         FirebaseFirestore.instance.collection('users').doc(user!.uid).get();
 
     print("userpresent :$userDocRef");
-    String idTokenResult = await (user.getIdToken(true));
+    String? idTokenResult = await (user.getIdToken(true));
     print('claims : $idTokenResult.claims');
 
     final String query = """
@@ -116,7 +116,7 @@ class HasuraService {
         FirebaseFirestore.instance.collection('users').doc(user!.uid).get();
 
     print("userpresent :$userDocRef");
-    String idTokenResult = await (user.getIdToken(true));
+    String? idTokenResult = await (user.getIdToken(true));
     print('claims : $idTokenResult.claims');
 
     print(device);

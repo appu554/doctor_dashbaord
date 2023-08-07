@@ -47,7 +47,6 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           builder: (context, params) => LoginWidget(),
         )
       ].map((r) => r.toRoute(appStateNotifier)).toList(),
-      urlPathStrategy: UrlPathStrategy.path,
     );
 
 extension NavParamExtensions on Map<String, String?> {
@@ -62,11 +61,11 @@ extension NavigationExtensions on BuildContext {
   void safePop() {
     // If there is only one route on the stack, navigate to the initial
     // page instead of popping.
-    if (GoRouter.of(this).routerDelegate.matches.length <= 1) {
-      go('/');
-    } else {
-      pop();
-    }
+    // if (GoRouter.of(this).routerDelegate.matches.length <= 1) {
+    //   go('/');
+    // } else {
+    //   pop();
+    // }
   }
 }
 
@@ -74,8 +73,8 @@ extension _GoRouterStateExtensions on GoRouterState {
   Map<String, dynamic> get extraMap =>
       extra != null ? extra as Map<String, dynamic> : {};
   Map<String, dynamic> get allParams => <String, dynamic>{}
-    ..addAll(params)
-    ..addAll(queryParams)
+    // ..addAll(params)
+    // ..addAll(queryParams)
     ..addAll(extraMap);
   TransitionInfo get transitionInfo => extraMap.containsKey(kTransitionInfoKey)
       ? extraMap[kTransitionInfoKey] as TransitionInfo

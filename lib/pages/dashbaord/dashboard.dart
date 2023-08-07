@@ -18,8 +18,6 @@ class DashBoardExample extends StatelessWidget {
   final ValueChanged<ThemeMode> onModeChanged;
   DashBoardExample({Key? key, required this.onModeChanged}) : super(key: key);
 
-  final Authentication _authentication = Authentication();
-
   @override
   Widget build(BuildContext context) {
     return ReadyDashboard(

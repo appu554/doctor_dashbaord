@@ -45,7 +45,7 @@ class _AllDeviceState extends State<AllDevice> {
 
     print("userpresent :$userDocRef");
     var userid = user.uid;
-    String idTokenResult = await (user.getIdToken(true));
+    String? idTokenResult = await (user.getIdToken(true));
     print('claims : $idTokenResult.claims');
     setState(() {
       hasuraclaim = idTokenResult;

@@ -1,9 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:cardiofit_dashboard/pages/dashbaord/patient_view/patient_module.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:auth0_flutter/auth0_flutter.dart';
+import 'package:auth0_flutter/auth0_flutter_web.dart';
 import 'package:flutter/material.dart';
 import 'package:hasura_connect/hasura_connect.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
@@ -25,30 +24,37 @@ class _ActicePatientState extends State<ActicePatient> {
   final searchController = TextEditingController();
   final List<DataRow> rows = [];
 
-  @override
-  void initState() {
-    super.initState();
+  late Auth0 _auth0;
+  late Auth0Web _auth0Web;
 
-    FirebaseAuth.instance.authStateChanges().listen((User? user) async {
-      if (user == null) {
-        print('User is currently signed out!');
-      } else {
-        print('User is signed in!');
-        await _getData(user);
-      }
-    });
+  @override
+  Future<void> initState() async {
+    super.initState();
+    _auth0 = Auth0("dev-hfw6wda5wtf8l13c.au.auth0.com",
+        "Y5u631Qz0f3yOfyB0F0GGFXLykNrltjL");
+    _auth0Web = Auth0Web("dev-hfw6wda5wtf8l13c.au.auth0.com",
+        "Y5u631Qz0f3yOfyB0F0GGFXLykNrltjL");
+
+    Credentials _credentials =
+        _auth0.credentialsManager.credentials() as Credentials;
+
+    if (_credentials.user == null) {
+      print('User is currently signed out!');
+    } else {
+      print('User is signed in!');
+      await _getData(_credentials);
+    }
   }
 
-  int _currentSortColumn = 0;
-  bool _isSortAsc = true;
+  // int _currentSortColumn = 0;
+  // bool _isSortAsc = true;
 
-  Future<String> _getData(User? user) async {
-    final userDocRef =
-        FirebaseFirestore.instance.collection('users').doc(user!.uid).get();
+  Future<String> _getData(Credentials credentials) async {
+    final userDocRef = credentials.user;
 
     print("userpresent :$userDocRef");
-    var userid = user.uid;
-    String idTokenResult = await (user.getIdToken(true));
+    var userid = userDocRef.sub;
+    String? idTokenResult = (credentials.idToken);
     print('$userid');
     print('claims : $idTokenResult.claims');
     setState(() {
@@ -56,12 +62,10 @@ class _ActicePatientState extends State<ActicePatient> {
     });
 
     _client = HasuraConnect(
-      'http://api.cardiofit.in/v1/graphql',
+      'http://backend.cardiofit.in/v1/graphql',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $hasuraclaim',
-        'x-hasura-role': 'doctor',
-        'x-hasura-user-id': userid
       },
     );
     final subscription = '''

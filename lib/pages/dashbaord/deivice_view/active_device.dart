@@ -46,7 +46,7 @@ class _ActiceDeviceState extends State<ActiceDevice> {
 
     print("userpresent :$userDocRef");
     var userid = user.uid;
-    String idTokenResult = await (user.getIdToken(true));
+    String? idTokenResult = await (user.getIdToken(true));
     print('claims : $idTokenResult.claims');
     setState(() {
       hasuraclaim = idTokenResult;

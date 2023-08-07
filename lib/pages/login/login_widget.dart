@@ -467,7 +467,7 @@ class _LoginWidgetState extends State<LoginWidget> {
     //     (snapshot.data() as Map<String, dynamic>).containsKey("createdAt") &&
     //     snapshot.data() != null);
 
-    String idTokenResult = await (user.getIdToken(true));
+    String? idTokenResult = await (user.getIdToken(true));
     print('claims : $idTokenResult.claims');
   }
 }

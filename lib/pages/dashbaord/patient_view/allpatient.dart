@@ -48,7 +48,7 @@ class _AllPatientState extends State<AllPatient> {
 
     print("userpresent :$userDocRef");
     var userid = user.uid;
-    String idTokenResult = await (user.getIdToken(true));
+    String? idTokenResult = await (user.getIdToken(true));
     print('$userid');
     print('claims : $idTokenResult.claims');
     setState(() {
