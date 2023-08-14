@@ -73,17 +73,17 @@ class _LoginWidgetState extends State<LoginWidget> {
                     )),
           );
         } else {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => DashBoardExample(
-                      onModeChanged: (value) {
-                        setState(() {
-                          _mode = value;
-                        });
-                      },
-                    )),
-          );
+          // Navigator.push(
+          //   context,
+          //   MaterialPageRoute(
+          //       builder: (context) => DashBoardExample(
+          //             onModeChanged: (value) {
+          //               setState(() {
+          //                 _mode = value;
+          //               });
+          //             },
+          //           )),
+          // );
         }
 
         // print("claim:$token");

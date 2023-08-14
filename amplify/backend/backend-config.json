@@ -1,0 +1,125 @@
+{
+  "auth": {
+    "cardiofitdashboardae2ef07e": {
+      "customAuth": false,
+      "dependsOn": [],
+      "providerPlugin": "awscloudformation",
+      "service": "Cognito",
+      "serviceType": "imported"
+    }
+  },
+  "parameters": {
+    "AMPLIFY_auth_cardiofitdashboardae2ef07e_allowUnauthenticatedIdentities": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "cardiofitdashboardae2ef07e"
+        }
+      ]
+    },
+    "AMPLIFY_auth_cardiofitdashboardae2ef07e_authRoleArn": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "cardiofitdashboardae2ef07e"
+        }
+      ]
+    },
+    "AMPLIFY_auth_cardiofitdashboardae2ef07e_authRoleName": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "cardiofitdashboardae2ef07e"
+        }
+      ]
+    },
+    "AMPLIFY_auth_cardiofitdashboardae2ef07e_identityPoolId": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "cardiofitdashboardae2ef07e"
+        }
+      ]
+    },
+    "AMPLIFY_auth_cardiofitdashboardae2ef07e_identityPoolName": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "cardiofitdashboardae2ef07e"
+        }
+      ]
+    },
+    "AMPLIFY_auth_cardiofitdashboardae2ef07e_nativeClientId": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "cardiofitdashboardae2ef07e"
+        }
+      ]
+    },
+    "AMPLIFY_auth_cardiofitdashboardae2ef07e_unauthRoleArn": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "cardiofitdashboardae2ef07e"
+        }
+      ]
+    },
+    "AMPLIFY_auth_cardiofitdashboardae2ef07e_unauthRoleName": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "cardiofitdashboardae2ef07e"
+        }
+      ]
+    },
+    "AMPLIFY_auth_cardiofitdashboardae2ef07e_userPoolId": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "cardiofitdashboardae2ef07e"
+        }
+      ]
+    },
+    "AMPLIFY_auth_cardiofitdashboardae2ef07e_userPoolName": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "cardiofitdashboardae2ef07e"
+        }
+      ]
+    },
+    "AMPLIFY_auth_cardiofitdashboardae2ef07e_webClientId": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "cardiofitdashboardae2ef07e"
+        }
+      ]
+    },
+    "AMPLIFY_storage_cardiofitdashboardb5d8357d_bucketName": {
+      "usedBy": [
+        {
+          "category": "storage",
+          "resourceName": "cardiofitdashboardb5d8357d"
+        }
+      ]
+    },
+    "AMPLIFY_storage_cardiofitdashboardb5d8357d_region": {
+      "usedBy": [
+        {
+          "category": "storage",
+          "resourceName": "cardiofitdashboardb5d8357d"
+        }
+      ]
+    }
+  },
+  "storage": {
+    "cardiofitdashboardb5d8357d": {
+      "dependsOn": [],
+      "providerPlugin": "awscloudformation",
+      "service": "S3",
+      "serviceType": "imported"
+    }
+  }
+}

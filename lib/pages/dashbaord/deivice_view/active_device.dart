@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'dart:convert';
 
+import 'package:auth0_flutter/auth0_flutter.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -9,93 +11,122 @@ import 'package:cardiofit_dashboard/pages/admin_dashboard/doctor_view/constant.d
 import 'dart:math' as math;
 
 class ActiceDevice extends StatefulWidget {
+  final Credentials credentialAuth0;
+
+  ActiceDevice(this.credentialAuth0);
   @override
   _ActiceDeviceState createState() => _ActiceDeviceState();
 }
 
 class _ActiceDeviceState extends State<ActiceDevice> {
-  final hasuraService = HasuraService();
-  // The following list is already sorted by id
-  List<bool> _selected = [];
+  // The following list is already sorted by i
   List<dynamic> items = [];
+  List<dynamic> filteredData = [];
   var responseval;
   var hasuraclaim;
   late final HasuraConnect _client;
-  late final Snapshot _snapshot;
   Stream<dynamic>? _stream;
+  final searchController = TextEditingController();
+  final List<DataRow> rows = [];
+  late TextEditingController _textEditingController;
 
   @override
   void initState() {
     super.initState();
-    FirebaseAuth.instance.authStateChanges().listen((User? user) async {
-      if (user == null) {
-        print('User is currently signed out!');
-      } else {
-        print('User is signed in!');
-        await _getData(user);
-      }
-    });
+    _getData();
+    _textEditingController =
+        TextEditingController(text: widget.credentialAuth0.idToken.toString());
   }
 
   int _currentSortColumn = 0;
   bool _isSortAsc = true;
 
-  Future<String> _getData(User? user) async {
-    final userDocRef =
-        FirebaseFirestore.instance.collection('users').doc(user!.uid).get();
+  Future<String> _getData() async {
+    final _credentials = widget.credentialAuth0;
+
+    print("User is signed in!${_credentials.user.sub}");
+
+    if (_credentials.user == null) {
+      print('User is currently signed out!');
+    } else {
+      print('User is signed in what !${_credentials.user}');
+    }
+
+    final userDocRef = _credentials.user;
 
     print("userpresent :$userDocRef");
-    var userid = user.uid;
-    String? idTokenResult = await (user.getIdToken(true));
+    var userid = userDocRef.sub;
+    String? idTokenResult = (_credentials.idToken);
+    print('$userid');
     print('claims : $idTokenResult.claims');
     setState(() {
       hasuraclaim = idTokenResult;
     });
 
     _client = HasuraConnect(
-      'http://api.cardiofit.in/v1/graphql',
+      'http://backend.cardiofit.in/v1/graphql',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $hasuraclaim',
-        'x-hasura-role': 'doctor',
-        'x-hasura-user-id': userid
+        "X-Hasura-Role": "doctor"
       },
     );
     final subscription = '''
-      subscription MySubscription(\$_eq: String = $userid) {
-  device_info(where: {attached_uid: {_eq: \$_eq},device_status: {_eq: true}}) {
-    id
-    device_serial
-    device_name
-    device_status
-    created_at
-  }
-}
-    ''';
+    subscription MySubscription(\$userid: String) {
+        device_info(where: {attached_uid: {_eq: \$userid},device_status: {_eq: true}}) {
+        id
+        device_type
+        device_status
+        device_serial
+        device_name
+        added_at
+      }
+}''';
 
-    final finalsnapshot = await _client.subscription(subscription).then(
-        (snapshot) => _stream = snapshot.map((event) => event).distinct());
-
-    print(finalsnapshot);
+    final finalsnapshot = await _client.subscription(subscription, variables: {
+      "userid": userid
+    }).then((snapshot) => _stream = snapshot.map((event) => event).distinct());
 
     _stream!.listen((event) {
       print(event);
+      print('////////////////');
+      // var listview = json.encode(event);
+      // print(listview);
+      // List<dynamic> patientDataList = event['data']['device_info']
+      //     .map((deviceInfo) => deviceInfo['patient_data'])
+      //     .expand((patientData) => patientData)
+      //     .toList();
+      // print(patientDataList);
+      //end
+      // final List<dynamic> jsonData = event;
+      String jsonString = json.encode(event);
+      print('working 1');
+      Map<String, dynamic> data = json.decode(jsonString);
+      print('working 2 $data');
+      final List<dynamic> userList = data.values.toList();
+      print('working 3$userList');
+      // final List<dynamic> userList = usersMap.values.toList();
+
+      // print(usersMap);
+
       if (event['data']['device_info'] is Iterable) {
         print('object is iterable');
         List<dynamic> eventData = [];
         eventData.addAll(
           (event['data']['device_info'] as Iterable).map((item) => {
-                'id': item['id'],
+                'id': item['uid'],
+                'device_type': item['device_type'],
+                'device_status': item['device_status'],
                 'device_serial': item['device_serial'],
                 'device_name': item['device_name'],
-                'created_at': item['created_at'],
-                'device_status': item['device_status'],
+                'added_at': item['added_at']
               }),
         );
         print(eventData);
         setState(() {
           items.clear();
           items.addAll(eventData);
+          filteredData = items;
         });
       } else if (event['data']['device_info'] is Map) {
         print('object is map');
@@ -110,7 +141,7 @@ class _ActiceDeviceState extends State<ActiceDevice> {
         });
       }
     });
-    print(items);
+    print("added item $items");
     var data = '4';
 
     return data;
@@ -131,6 +162,7 @@ class _ActiceDeviceState extends State<ActiceDevice> {
 
   @override
   Widget build(BuildContext context) {
+    var textFieldValue = widget.credentialAuth0.idToken;
     return MaterialApp(
       home: Scaffold(
         body: FutureBuilder(
@@ -139,9 +171,82 @@ class _ActiceDeviceState extends State<ActiceDevice> {
               if (dataSnapshot.hasError) {
                 return const Text('Error');
               } else if (dataSnapshot.hasData) {
-                return ListView(
-                  children: [_createDataTable()],
-                );
+                return Column(children: [
+                  TextField(
+                    controller: _textEditingController,
+                    onChanged: (newValue) {
+                      setState(() {
+                        textFieldValue = newValue; // Update the value
+                      });
+                    },
+                    decoration: InputDecoration(
+                      hintText: 'Enter text here',
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: TextField(
+                      controller: searchController,
+                      decoration: const InputDecoration(
+                        hintText: 'Search...',
+                        border: OutlineInputBorder(),
+                      ),
+                      onChanged: _onSearchTextChanged,
+                    ),
+                  ),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 500,
+                    child: DataTable(
+                      columns: const <DataColumn>[
+                        DataColumn(label: Text('Device Name')),
+                        DataColumn(label: Text('Device Status')),
+                        DataColumn(label: Text('Device Serial')),
+                        DataColumn(label: Text('Device Type')),
+                        DataColumn(label: Text('Purchased At')),
+                      ],
+                      rows: List.generate(filteredData.length, (index) {
+                        final item = filteredData[index];
+                        return DataRow(
+                          cells: [
+                            DataCell(Text(item['device_name'].toString())),
+                            DataCell(Text(item['device_status'].toString())),
+                            DataCell(Text(item['device_serial'].toString())),
+                            DataCell(Text(item['device_type'].toString())),
+                            DataCell(Text(item['added_at'].toString())),
+                            // DataCell(Text(item['device_info']['patientData']
+                            //         ['deviceInfo']['deviceStatus']
+                            //     .toString())),
+                            // DataCell(Text(item['device_info']['patientData']
+                            //         ['deviceInfo']['device_serial']
+                            //     .toString())),
+                            // DataCell(Text(item.toString())),
+                            // DataCell(Text(item['device_info']['patientData']
+                            //         ['deviceInfo']['dob']
+                            //     .toString())),
+                            // DataCell(
+                            //   IconButton(
+                            //     hoverColor: Colors.transparent,
+                            //     splashColor: Colors.transparent,
+                            //     icon: const Icon(Icons.remove_red_eye_rounded),
+                            //     onPressed: () => _dialogBuilder(context),
+                            //   ),
+                            // ),
+                            // DataCell(
+                            //   IconButton(
+                            //       hoverColor: Colors.transparent,
+                            //       splashColor: Colors.transparent,
+                            //       icon: const Icon(Icons.report),
+                            //       onPressed: () {
+                            //         var patient_uid = item['uid'].toString();
+                            //       }),
+                            // )
+                          ],
+                        );
+                      }),
+                    ),
+                  ),
+                ]);
               } else {
                 return Center(child: CircularProgressIndicator());
               }
@@ -161,6 +266,18 @@ class _ActiceDeviceState extends State<ActiceDevice> {
       headingRowColor:
           MaterialStateProperty.resolveWith((states) => Colors.black),
     );
+  }
+
+  void _onSearchTextChanged(String text) {
+    setState(() {
+      filteredData = text.isEmpty
+          ? items
+          : items
+              .where((item) => item['device_type']
+                  .toLowerCase()
+                  .contains(text.toLowerCase()))
+              .toList();
+    });
   }
 
   List<DataColumn> _createColumns() {

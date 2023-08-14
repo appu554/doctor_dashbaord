@@ -1,3 +1,6 @@
+import 'dart:html';
+
+import 'package:auth0_flutter/auth0_flutter.dart';
 import 'package:cardiofit_dashboard/index.dart';
 import 'package:cardiofit_dashboard/pages/dashbaord/components/dashboard.dart';
 import 'package:cardiofit_dashboard/pages/dashbaord/deivice_view/active_device.dart';
@@ -9,10 +12,12 @@ import 'package:cardiofit_dashboard/services/authentication.dart';
 import 'package:flutter/material.dart';
 import 'package:ready/ready.dart';
 
-
 class DashBoardExample extends StatelessWidget {
   final ValueChanged<ThemeMode> onModeChanged;
-  DashBoardExample({Key? key, required this.onModeChanged}) : super(key: key);
+  final Credentials credentialAuth0;
+  DashBoardExample(
+      {Key? key, required this.onModeChanged, required this.credentialAuth0})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +56,7 @@ class DashBoardExample extends StatelessWidget {
       items: [
         DashboardItem(
           builder: (Map<String, dynamic> parameters) {
-            return DashboardView();
+            return DashboardView(credentialAuth0);
           },
           icon: const Icon(Icons.animation_rounded),
           id: 'animated2',
@@ -63,7 +68,7 @@ class DashBoardExample extends StatelessWidget {
           subItems: [
             DashboardItem(
               builder: (Map<String, dynamic> parameters) {
-                return ActicePatient();
+                return ActicePatient(credentialAuth0);
               },
               icon: const Icon(Icons.table_chart),
               id: 'active patient',
@@ -71,7 +76,7 @@ class DashBoardExample extends StatelessWidget {
             ),
             DashboardItem(
               builder: (Map<String, dynamic> parameters) {
-                return AllPatient();
+                return AllPatient(credentialAuth0);
               },
               icon: const Icon(Icons.local_cafe),
               id: 'all patient',
@@ -85,7 +90,7 @@ class DashBoardExample extends StatelessWidget {
           subItems: [
             DashboardItem(
               builder: (Map<String, dynamic> parameters) {
-                return ActiceDevice();
+                return ActiceDevice(credentialAuth0);
               },
               icon: const Icon(Icons.table_chart),
               id: 'active device',
@@ -93,7 +98,7 @@ class DashBoardExample extends StatelessWidget {
             ),
             DashboardItem(
               builder: (Map<String, dynamic> parameters) {
-                return AllDevice();
+                return AllDevice(credentialAuth0);
               },
               icon: const Icon(Icons.local_cafe),
               id: 'all device',
@@ -101,22 +106,22 @@ class DashBoardExample extends StatelessWidget {
             ),
           ],
         ),
-        DashboardItem(
-          builder: (Map<String, dynamic> parameters) {
-            return const ProfileWidget();
-          },
-          icon: const Icon(Icons.person),
-          id: 'profile',
-          label: 'Profile',
-        ),
-        DashboardItem(
-          builder: (Map<String, dynamic> parameters) {
-            return DialogFb1();
-          },
-          icon: const Icon(Icons.logout),
-          id: 'logout',
-          label: 'Logout',
-        ),
+        // DashboardItem(
+        //   builder: (Map<String, dynamic> parameters) {
+        //     return const ProfileWidget();
+        //   },
+        //   icon: const Icon(Icons.person),
+        //   id: 'profile',
+        //   label: 'Profile',
+        // ),
+        // DashboardItem(
+        //   builder: (Map<String, dynamic> parameters) {
+        //     return DialogFb1();
+        //   },
+        //   icon: const Icon(Icons.logout),
+        //   id: 'logout',
+        //   label: 'Logout',
+        // ),
 
         // Call this in a function
 // ()=> showDialog<Dialog>(context: context, builder: (BuildContext context) => DialogFb1())
@@ -319,11 +324,10 @@ class DialogFb1 extends StatelessWidget {
                 SimpleBtn1(
                     text: "yes",
                     onPressed: () {
-                      _authentication.signOut();
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(builder: (context) => LoginWidget()),
-                      );
+                      // Navigator.pushReplacement(
+                      //   context,
+                      //   MaterialPageRoute(builder: (context) => LoginWidget()),
+                      // );
                     }),
                 SimpleBtn1(
                   text: "No",

@@ -92,9 +92,31 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:ready/ready.dart';
 
+import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
+import 'package:amplify_flutter/amplify_flutter.dart';
+import 'package:amplify_storage_s3/amplify_storage_s3.dart';
+import 'amplifyconfiguration.dart';
+
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await _configureAmplify();
   runApp(const ExampleApp());
 }
+
+Future<void> _configureAmplify() async {
+  try {
+    final auth = AmplifyAuthCognito();
+    final storage = AmplifyStorageS3();
+    await Amplify.addPlugins([auth, storage]);
+
+    // call Amplify.configure to use the initialized categories in your app
+    await Amplify.configure(amplifyconfig);
+  } on Exception catch (e) {
+    safePrint('An error occurred configuring Amplify: $e');
+  }
+}
+
+
 
 // Future<void> main() async {
 //   await Firebase.initializeApp(
@@ -103,82 +125,82 @@ void main() async {
 //   runApp(const ExampleApp());
 // }
 
-class MyApp extends StatefulWidget {
-  const MyApp({Key? key}) : super(key: key);
+// class MyApp extends StatefulWidget {
+//   const MyApp({Key? key}) : super(key: key);
 
-  @override
-  State<MyApp> createState() => _MyAppState();
-}
+//   @override
+//   State<MyApp> createState() => _MyAppState();
+// }
 
-class _MyAppState extends State<MyApp> {
-  ThemeMode _mode = ThemeMode.light;
-  var homepage;
-  @override
-  void initState() {
-    super.initState();
+// class _MyAppState extends State<MyApp> {
+//   ThemeMode _mode = ThemeMode.light;
+//   var homepage;
+//   @override
+//   void initState() {
+//     super.initState();
 
-    FirebaseAuth.instance.authStateChanges().listen((User? user) async {
-      if (user == null) {
-        print('User is currently signed out!');
-        setState(() => homepage = LoginWidget());
-      } else {
-        print('User is signed in!');
-        String userid = user.uid;
-        print(userid);
-        print(user.displayName);
-        // print("claim:$token");
-        // generateJWT();
-        // queryHasuraGraphQL();
-        if (user.displayName!.contains("admin")) {
-          setState(
-            () => homepage = AdminDashBoardExample(
-              onModeChanged: (value) {
-                setState(() {
-                  _mode = value;
-                });
-              },
-            ),
-          );
-        } else {
-          setState(
-            () => homepage = DashBoardExample(
-              onModeChanged: (value) {
-                setState(() {
-                  _mode = value;
-                });
-              },
-            ),
-          );
-        }
-      }
-    });
-  }
+//     FirebaseAuth.instance.authStateChanges().listen((User? user) async {
+//       if (user == null) {
+//         print('User is currently signed out!');
+//         setState(() => homepage = LoginWidget());
+//       } else {
+//         print('User is signed in!');
+//         String userid = user.uid;
+//         print(userid);
+//         print(user.displayName);
+//         // print("claim:$token");
+//         // generateJWT();
+//         // queryHasuraGraphQL();
+//         if (user.displayName!.contains("admin")) {
+//           setState(
+//             () => homepage = AdminDashBoardExample(
+//               onModeChanged: (value) {
+//                 setState(() {
+//                   _mode = value;
+//                 });
+//               },
+//             ),
+//           );
+//         } else {
+//           setState(
+//             () => homepage = DashBoardExample(
+//               onModeChanged: (value) {
+//                 setState(() {
+//                   _mode = value;
+//                 });
+//               },
+//             ),
+//           );
+//         }
+//       }
+//     });
+//   }
 
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData.light(),
-      darkTheme: ThemeData.dark(),
-      localizationsDelegates: [
-        ...GlobalMaterialLocalizations.delegates,
-        Ready.delegate,
-      ],
-      themeMode: _mode,
-      supportedLocales: const [
-        Locale('ar'),
-        Locale('en'),
-      ],
-      locale: const Locale('en'),
-      home: homepage,
-      // DashBoardExample(
-      //   onModeChanged: (value) {
-      //     setState(() {
-      //       _mode = value;
-      //     });
-      //   },
-      // ),
-      debugShowCheckedModeBanner: false,
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return MaterialApp(
+//       title: 'Flutter Demo',
+//       theme: ThemeData.light(),
+//       darkTheme: ThemeData.dark(),
+//       localizationsDelegates: [
+//         ...GlobalMaterialLocalizations.delegates,
+//         Ready.delegate,
+//       ],
+//       themeMode: _mode,
+//       supportedLocales: const [
+//         Locale('ar'),
+//         Locale('en'),
+//       ],
+//       locale: const Locale('en'),
+//       home: homepage,
+//       // DashBoardExample(
+//       //   onModeChanged: (value) {
+//       //     setState(() {
+//       //       _mode = value;
+//       //     });
+//       //   },
+//       // ),
+//       debugShowCheckedModeBanner: false,
+//     );
+//   }
+// }

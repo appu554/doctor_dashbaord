@@ -1,14 +1,27 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
+import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:auth0_flutter/auth0_flutter.dart';
 import 'package:auth0_flutter/auth0_flutter_web.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hasura_connect/hasura_connect.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'dart:math' as math;
+import 'dart:html' as html;
+import 'package:amplify_storage_s3/amplify_storage_s3.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:http/http.dart' as http;
+import 'dart:js' as js;
+import 'package:flutter_full_pdf_viewer_null_safe/full_pdf_viewer_scaffold.dart';
 
 class ActicePatient extends StatefulWidget {
+  final Credentials credentialAuth0;
+
+  ActicePatient(this.credentialAuth0);
+
   @override
   _ActicePatientState createState() => _ActicePatientState();
 }
@@ -23,30 +36,28 @@ class _ActicePatientState extends State<ActicePatient> {
   Stream<dynamic>? _stream;
   final searchController = TextEditingController();
   final List<DataRow> rows = [];
-
-  late Auth0 _auth0;
-  late Auth0Web _auth0Web;
+  late TextEditingController _textEditingController;
 
   @override
   void initState() {
     super.initState();
-    _auth0 = Auth0("dev-hfw6wda5wtf8l13c.au.auth0.com",
-        "Y5u631Qz0f3yOfyB0F0GGFXLykNrltjL");
-    _auth0Web = Auth0Web("dev-hfw6wda5wtf8l13c.au.auth0.com",
-        "Y5u631Qz0f3yOfyB0F0GGFXLykNrltjL");
     _getData();
+    _textEditingController =
+        TextEditingController(text: widget.credentialAuth0.idToken.toString());
   }
 
   // int _currentSortColumn = 0;
   // bool _isSortAsc = true;
 
   Future<String> _getData() async {
-    final _credentials = await _auth0.credentialsManager.credentials();
+    final _credentials = widget.credentialAuth0;
+
+    print("User is signed in!${_credentials.user.sub}");
 
     if (_credentials.user == null) {
       print('User is currently signed out!');
     } else {
-      print('User is signed in!');
+      print('User is signed in what !${_credentials.user}');
     }
 
     final userDocRef = _credentials.user;
@@ -68,26 +79,24 @@ class _ActicePatientState extends State<ActicePatient> {
       },
     );
     final subscription = '''
-    subscription MySubscription {
-  patient_data(where: {is_active: {_eq: "active"}, device_info: {attached_uid: {_eq: $userid}}}) {
-    is_active
-    weight
-    uid
-    name
-    mobile
-    id
-    height
-    gender
-    email
-    dob
+    subscription MySubscription(\$userid: String) {
+    patient(where: {patient_device_info: {attached_uid: {_eq: \$userid}}, is_active: {_eq: "true"}}) {
     attached_device
-  }
-}
+    dob
+    email
+    gender
+    height
+    is_active
+    mobile
+    name
+    uid
+    weight
+  }   
+}''';
 
-    ''';
-
-    final finalsnapshot = await _client.subscription(subscription).then(
-        (snapshot) => _stream = snapshot.map((event) => event).distinct());
+    final finalsnapshot = await _client.subscription(subscription, variables: {
+      "userid": userid
+    }).then((snapshot) => _stream = snapshot.map((event) => event).distinct());
 
     _stream!.listen((event) {
       print(event);
@@ -111,12 +120,12 @@ class _ActicePatientState extends State<ActicePatient> {
 
       // print(usersMap);
 
-      if (event['data']['patient_data'] is Iterable) {
+      if (event['data']['patient'] is Iterable) {
         print('object is iterable');
         List<dynamic> eventData = [];
         eventData.addAll(
-          (event['data']['patient_data'] as Iterable).map((item) => {
-                'id': item['id'],
+          (event['data']['patient'] as Iterable).map((item) => {
+                'uid': item['uid'],
                 'mobile': item['mobile'],
                 'dob': item['dob'],
                 'weight': item['weight'],
@@ -145,120 +154,6 @@ class _ActicePatientState extends State<ActicePatient> {
           });
         });
       }
-
-      // if (event['data']['patient_data'] is Iterable) {
-      //   print('object is iterable');
-      //   List<dynamic> eventData = [];
-      //   (event['data']['patient_data'] as Iterable).forEach((device) {
-      //     List<dynamic> patientData = [];
-      //     (device['patient_data'] as Iterable).forEach((patient) {
-      //       patientData.add({
-      //         'id': patient['id'],
-      //         'height': patient['height'],
-      //         'mobile': patient['mobile'],
-      //         'name': patient['name'],
-      //         'gender': patient['gender'],
-      //         'email': patient['email'],
-      //         'dob': patient['dob'],
-      //         'created_at': patient['created_at'],
-      //         'attached_device': patient['attached_device'],
-      //         'uid': patient['uid'],
-      //       });
-      //     });
-      //     eventData.add({
-      //       'device_serial': device['device_serial'],
-      //       'device_name': device['device_name'],
-      //       'patient_data': patientData,
-      //     });
-      //   });
-      //   print(eventData);
-      //   setState(() {
-      //     items.clear();
-      //     items.addAll(eventData);
-      //     filteredData = items;
-      //   });
-      // }
-
-      // setState(() {
-      //   var itemslist = userList.map((user) => Device.fromJson(user)).toList();
-      //   items.add(userList);
-      //   filteredData = items;
-      //   // print('items ${items.iterator.current}');
-      //   // for (var device in items) {
-      //   //   print('object ${device.deviceName}');
-      //   //   if (device.patientData != null) {
-      //   //     print('not null');
-      //   //     for (var patient in device.patientData!) {
-      //   //       final deviceInfo = patient.deviceInfo;
-      //   //       print('deviceSerial: ${device.deviceSerial}');
-      //   //       print('deviceName: ${device.deviceName}');
-      //   //       print('id: ${patient.id}');
-      //   //       print('height: ${patient.height}');
-      //   //       print('mobile: ${patient.mobile}');
-      //   //       print('name: ${patient.name}');
-      //   //       print('gender: ${patient.gender}');
-      //   //       print('email: ${patient.email}');
-      //   //       print('dob: ${patient.dob}');
-      //   //       print('createdAt: ${patient.createdAt}');
-      //   //       print('attachedDevice: ${patient.attachedDevice}');
-      //   //       print('uid: ${patient.uid}');
-      //   //       print('deviceStatus: ${deviceInfo?.deviceStatus}');
-      //   //       rows.add(DataRow(cells: [
-      //   //         DataCell(Text(device.deviceSerial)),
-      //   //         DataCell(Text(device.deviceName)),
-      //   //         DataCell(Text(patient.id)),
-      //   //         DataCell(Text(patient.height.toString())),
-      //   //         DataCell(Text(patient.mobile)),
-      //   //         DataCell(Text(patient.name)),
-      //   //         DataCell(Text(patient.gender)),
-      //   //         DataCell(Text(patient.email)),
-      //   //         DataCell(Text(patient.dob)),
-      //   //         DataCell(Text(patient.createdAt.toString())),
-      //   //         DataCell(Text(patient.attachedDevice)),
-      //   //         DataCell(Text(patient.uid)),
-      //   //         DataCell(
-      //   //             Text(deviceInfo?.deviceStatus.toString() ?? 'Unknown')),
-      //   //       ]));
-      //   //     }
-      //   //   }
-      //   //   print('Null');
-      //   // }
-      // });
-      // if (event['data']['device_info']['patient_data'] is Iterable) {
-      //   print('object is iterable');
-      //   List<dynamic> eventData = [];
-      //   eventData.addAll(
-      //     (event['data']['device_info']['patient_data'] as Iterable)
-      //         .map((item) => {
-      //               'id': item['id'],
-      //               'name': item['name'],
-      //               'gender': item['gender'],
-      //               'email': item['email'],
-      //               'dob': item['dob'],
-      //               'attached_device': item['attached_device'],
-      //             }),
-      //   );
-      //   print(eventData);
-      //   setState(() {
-      //     items.clear();
-      //     items.addAll(eventData);
-      //   });
-      // } else if (event['data']['device_info']['patient_data'] is Map) {
-      //   print('object is map');
-      //   setState(() {
-      //     items.add({
-      //       'id': event['data']['device_info']['patient_data']['id'],
-      //       'device_serial': event['data']['device_info']['patient_data']
-      //           ['name'],
-      //       'device_name': event['data']['device_info']['patient_data']
-      //           ['height'],
-      //       'created_at': event['data']['device_info']['patient_data']
-      //           ['gender'],
-      //       'device_status': event['data']['device_info']['patient_data']
-      //           ['dob'],
-      //     });
-      //   });
-      // }
     });
     print("added item $items");
     var data = '4';
@@ -290,8 +185,18 @@ class _ActicePatientState extends State<ActicePatient> {
     });
   }
 
+  void _showDialog(BuildContext context, String patient_uid) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return reportpopup(patient_uid, widget.credentialAuth0);
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    var textFieldValue = widget.credentialAuth0.idToken;
     return MaterialApp(
       home: Scaffold(
         body: FutureBuilder(
@@ -301,6 +206,17 @@ class _ActicePatientState extends State<ActicePatient> {
                 return const Text('Error');
               } else if (dataSnapshot.hasData) {
                 return Column(children: [
+                  TextField(
+                    controller: _textEditingController,
+                    onChanged: (newValue) {
+                      setState(() {
+                        textFieldValue = newValue; // Update the value
+                      });
+                    },
+                    decoration: InputDecoration(
+                      hintText: 'Enter text here',
+                    ),
+                  ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: TextField(
@@ -360,11 +276,13 @@ class _ActicePatientState extends State<ActicePatient> {
                             ),
                             DataCell(
                               IconButton(
-                                hoverColor: Colors.transparent,
-                                splashColor: Colors.transparent,
-                                icon: const Icon(Icons.report),
-                                onPressed: () => _dialogBuilder(context),
-                              ),
+                                  hoverColor: Colors.transparent,
+                                  splashColor: Colors.transparent,
+                                  icon: const Icon(Icons.report),
+                                  onPressed: () {
+                                    var patient_uid = item['uid'].toString();
+                                    _showDialog(context, patient_uid);
+                                  }),
                             )
                           ],
                         );
@@ -379,82 +297,6 @@ class _ActicePatientState extends State<ActicePatient> {
       ),
     );
   }
-
-  // DataTable _createDataTable() {
-  //   return DataTable(
-  //     columns: _createColumns(),
-  //     rows: _createRows(),
-  //     sortColumnIndex: _currentSortColumn,
-  //     sortAscending: _isSortAsc,
-  //     headingTextStyle:
-  //         TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
-  //     headingRowColor:
-  //         MaterialStateProperty.resolveWith((states) => Colors.black),
-  //   );
-  // }
-
-  // List<DataColumn> _createColumns() {
-  //   return [
-  //     DataColumn(
-  //       label: Text('ID'),
-  //       onSort: (columnIndex, _) {
-  //         setState(() {
-  //           _currentSortColumn = columnIndex;
-  //           if (_isSortAsc) {
-  //             items.sort((a, b) => b.deviceInfo[0].patientData[0].id
-  //                 .compareTo(a.deviceInfo[0].patientData[0].id));
-  //           } else {
-  //             items.sort((a, b) => a.deviceInfo[0].patientData[0].id
-  //                 .compareTo(b.deviceInfo[0].patientData[0].id));
-  //           }
-  //           _isSortAsc = !_isSortAsc;
-  //         });
-  //       },
-  //     ),
-  //     DataColumn(label: Text('Name and Age')),
-  //     DataColumn(label: Text('Device Status')),
-  //     DataColumn(label: Text('Device Serial')),
-  //     DataColumn(label: Text('gender')),
-  //     DataColumn(label: Text('Date of birth')),
-  //     DataColumn(label: Text('Action')),
-  //     DataColumn(label: Text('Reports'))
-  //   ];
-  // }
-
-  // List<DataRow> _createRows() {
-  //   return items
-  //       .map((book) => DataRow(cells: [
-  //             DataCell(
-  //                 Text('#' + book.deviceInfo[0].patientData[0].id.toString())),
-  //             DataCell(Text(book.deviceInfo[0].patientData[0].name.toString())),
-  //             DataCell(Text(book
-  //                 .deviceInfo[0].patientData[0].deviceInfo.deviceStatus
-  //                 .toString())),
-  //             DataCell(Text(book
-  //                 .deviceInfo[0].patientData[0].deviceInfo.deviceSerial
-  //                 .toString())),
-  //             DataCell(
-  //                 Text(book.deviceInfo[0].patientData[0].gender.toString())),
-  //             DataCell(Text(book.deviceInfo[0].patientData[0].dob.toString())),
-  //             DataCell(
-  //               IconButton(
-  //                 hoverColor: Colors.transparent,
-  //                 splashColor: Colors.transparent,
-  //                 icon: const Icon(Icons.remove_red_eye_rounded),
-  //                 onPressed: () => _dialogBuilder(context),
-  //               ),
-  //             ),
-  //             DataCell(
-  //               IconButton(
-  //                 hoverColor: Colors.transparent,
-  //                 splashColor: Colors.transparent,
-  //                 icon: const Icon(Icons.report),
-  //                 onPressed: () => _dialogBuilder(context),
-  //               ),
-  //             )
-  //           ]))
-  //       .toList();
-  // }
 
   Future<void> _dialogBuilder(BuildContext context) {
     chartData = getChartData();
@@ -492,33 +334,6 @@ class _ActicePatientState extends State<ActicePatient> {
                     title: AxisTitle(text: 'Internet speed (Mbps)'))),
           ),
         );
-        // AlertDialog(
-        //   title: const Text('Basic dialog title'),
-        //   content: const Text('A dialog is a type of modal window that\n'
-        //       'appears in front of app content to\n'
-        //       'provide critical information, or prompt\n'
-        //       'for a decision to be made.'),
-        //   actions: <Widget>[
-        //     TextButton(
-        //       style: TextButton.styleFrom(
-        //         textStyle: Theme.of(context).textTheme.labelLarge,
-        //       ),
-        //       child: const Text('Disable'),
-        //       onPressed: () {
-        //         Navigator.of(context).pop();
-        //       },
-        //     ),
-        //     TextButton(
-        //       style: TextButton.styleFrom(
-        //         textStyle: Theme.of(context).textTheme.labelLarge,
-        //       ),
-        //       child: const Text('Enable'),
-        //       onPressed: () {
-        //         Navigator.of(context).pop();
-        //       },
-        //     ),
-        //   ],
-        // );
       },
     );
   }
@@ -563,4 +378,301 @@ class LiveData {
   LiveData(this.time, this.speed);
   final int time;
   final num speed;
+}
+
+class reportpopup extends StatefulWidget {
+  final String patient_uid;
+  final Credentials credentialAuth0;
+
+  reportpopup(this.patient_uid, this.credentialAuth0);
+
+  @override
+  State<reportpopup> createState() => _reportpopupState();
+}
+
+class _reportpopupState extends State<reportpopup> {
+  // The following list is already sorted by i
+  List<dynamic> items = [];
+  List<dynamic> filteredData = [];
+  var responseval;
+  var hasuraclaim;
+  late final HasuraConnect _client;
+  Stream<dynamic>? _stream;
+  final searchController = TextEditingController();
+  final List<DataRow> rows = [];
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    _getData();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+  }
+
+  Future _getData() async {
+    Credentials _credentials = widget.credentialAuth0;
+
+    print("User is signed in!${_credentials.user.sub}");
+
+    if (_credentials.user == null) {
+      print('User is currently signed out!');
+    } else {
+      print('User is signed in what !${_credentials.user}');
+    }
+
+    final userDocRef = _credentials.user;
+
+    print("userpresent :$userDocRef");
+    var userid = userDocRef.sub;
+    var patentid = widget.patient_uid;
+    String? idTokenResult = (_credentials.idToken);
+    print('$userid');
+    print('claims : $idTokenResult.claims');
+    setState(() {
+      hasuraclaim = idTokenResult;
+    });
+
+    _client = HasuraConnect(
+      'http://backend.cardiofit.in/v1/graphql',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $hasuraclaim',
+        'X-Hasura-Role': "doctor"
+      },
+    );
+    final subscription = '''
+  subscription MySubscription(\$patentid: String) {
+  patient_reports(where: {uid: {_eq: \$patentid}}) {
+    created_at
+    patient_name
+    report_url
+    uid
+    upload_at
+    upload_by
+  }
+  }
+''';
+
+    final finalsnapshot = await _client.subscription(subscription, variables: {
+      "patentid": patentid
+    }).then((snapshot) => _stream = snapshot.map((event) => event).distinct());
+
+    _stream!.listen((event) {
+      print(event);
+      print('////////////////');
+      // var listview = json.encode(event);
+      // print(listview);
+      // List<dynamic> patientDataList = event['data']['device_info']
+      //     .map((deviceInfo) => deviceInfo['patient_data'])
+      //     .expand((patientData) => patientData)
+      //     .toList();
+      // print(patientDataList);
+      //end
+      // final List<dynamic> jsonData = event;
+      String jsonString = json.encode(event);
+      print('working 1');
+      Map<String, dynamic> data = json.decode(jsonString);
+      print('working 2 $data');
+      final List<dynamic> userList = data.values.toList();
+      print('working 3$userList');
+      // final List<dynamic> userList = usersMap.values.toList();
+
+      // print(usersMap);
+
+      if (event['data']['patient_reports'] is Iterable) {
+        print('object is iterable');
+        List<dynamic> eventData = [];
+        eventData.addAll(
+          (event['data']['patient_reports'] as Iterable).map((item) => {
+                'upload_by': item['upload_by'],
+                'upload_at': item['upload_at'],
+                'report_url': item['report_url'],
+                'patient_name': item['patient_name'],
+                'created_at': item['created_at'],
+                'uid': item['uid'],
+              }),
+        );
+        print(eventData);
+        setState(() {
+          items.clear();
+          items.addAll(eventData);
+          filteredData = items;
+        });
+      } else if (event['data']['device_info'] is Map) {
+        print('object is map');
+        setState(() {
+          items.add({
+            'id': event['data']['device_info']['id'],
+            'device_serial': event['data']['device_info']['device_serial'],
+            'device_name': event['data']['device_info']['device_name'],
+            'created_at': event['data']['device_info']['created_at'],
+            'device_status': event['data']['device_info']['device_status'],
+          });
+        });
+      }
+    });
+    print("added item $items");
+    var data = '4';
+
+    return data;
+  }
+
+  checkif() async {
+    var data = '';
+    if (responseval == null) {
+    } else {
+      setState(() {
+        data = "true";
+      });
+    }
+    await Future.delayed(Duration(seconds: 3));
+
+    return data;
+  }
+
+  void _onSearchTextChanged(String text) {
+    setState(() {
+      filteredData = text.isEmpty
+          ? items
+          : items
+              .where((item) =>
+                  item['name'].toLowerCase().contains(text.toLowerCase()))
+              .toList();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Card(
+        elevation: 4.0,
+        margin: EdgeInsets.symmetric(horizontal: 20.0),
+        child: FutureBuilder(
+            future: checkif(),
+            builder: (context, dataSnapshot) {
+              if (dataSnapshot.hasError) {
+                return const Text('Error');
+              } else if (dataSnapshot.hasData) {
+                return Column(children: [
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: TextField(
+                      controller: searchController,
+                      decoration: const InputDecoration(
+                        hintText: 'Search...',
+                        border: OutlineInputBorder(),
+                      ),
+                      onChanged: _onSearchTextChanged,
+                    ),
+                  ),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 500,
+                    child: DataTable(
+                      columns: const <DataColumn>[
+                        DataColumn(label: Text('Patient Name')),
+                        DataColumn(label: Text('Upload at')),
+                        DataColumn(label: Text('Report Name')),
+                        // DataColumn(label: Text('Name')),
+                        DataColumn(label: Text('Uploaded By')),
+                        // DataColumn(label: Text('Email')),
+
+                        DataColumn(label: Text('View')),
+                      ],
+                      rows: List.generate(filteredData.length, (index) {
+                        final item = filteredData[index];
+                        return DataRow(
+                          cells: [
+                            DataCell(Text(item['patient_name'].toString())),
+                            DataCell(Text(item['upload_at'].toString())),
+                            DataCell(Text(item['report_url'].toString())),
+                            DataCell(Text(item['upload_by'].toString())),
+                            DataCell(
+                              IconButton(
+                                  hoverColor: Colors.transparent,
+                                  splashColor: Colors.transparent,
+                                  icon: const Icon(Icons.report),
+                                  onPressed: () {
+                                    print('clicked');
+                                    _getPresignedUrl(item['report_url']);
+                                  }),
+                            )
+                          ],
+                        );
+                      }),
+                    ),
+                  ),
+                ]);
+              } else {
+                return Center(child: CircularProgressIndicator());
+              }
+            }),
+      ),
+    );
+  }
+
+  Future<String> _getPresignedUrl(String objectKey) async {
+    try {
+      final result = await Amplify.Storage.getUrl(
+        key: objectKey,
+        options: const StorageGetUrlOptions(
+          accessLevel: StorageAccessLevel.guest,
+          pluginOptions: S3GetUrlPluginOptions(
+            validateObjectExistence: true,
+            expiresIn: Duration(days: 1),
+          ),
+        ),
+      ).result;
+
+      print(result.url.toString());
+      var pdfUrl = result.url.toString();
+
+      html.window.open(pdfUrl, '_blank');
+      return result.url.toString();
+    } on StorageException catch (e) {
+      safePrint('Could not get a downloadable URL: ${e.message}');
+      rethrow;
+    }
+  }
+}
+
+Future<void> openPDFFromS3InNewTab(String s3Url) async {
+  // Make an HTTP GET request to fetch the PDF content from the S3 URL
+  http.Response response = await http.get(Uri.parse(s3Url));
+
+  if (response.statusCode == 200) {
+    Uint8List pdfBytes = response.bodyBytes;
+
+    final blob = js.JsObject.jsify([pdfBytes]);
+    final url = js.JsObject.jsify({'type': 'application/pdf', 'data': blob});
+    js.context.callMethod('open', [url, '_blank']);
+  } else {
+    print('Failed to fetch PDF from S3. Status code: ${response.statusCode}');
+  }
+}
+
+class PDFScreen extends StatelessWidget {
+  final String pathPDF;
+
+  PDFScreen(this.pathPDF);
+
+  @override
+  Widget build(BuildContext context) {
+    return PDFViewerScaffold(
+        appBar: AppBar(
+          title: Text("Document"),
+          actions: <Widget>[
+            IconButton(
+              icon: Icon(Icons.share),
+              onPressed: () {},
+            ),
+          ],
+        ),
+        path: pathPDF);
+  }
 }

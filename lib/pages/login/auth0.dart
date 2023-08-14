@@ -8,6 +8,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import '../dashbaord/dashboard.dart';
 import 'hero.dart';
+import 'package:amplify_authenticator/amplify_authenticator.dart';
 
 ThemeMode _modeTheme = ThemeMode.dark;
 
@@ -41,6 +42,8 @@ class _ExampleAppState extends State<ExampleApp> {
             _credentialsDetails = credentials;
           }));
     }
+    // Navigate to the DashBoardExample route after successful login
+    if (_user != null && _credentialsDetails != null) {}
     _timer = Timer.periodic(Duration(seconds: 1), (timer) {
       _everySecond();
     });
@@ -63,11 +66,8 @@ class _ExampleAppState extends State<ExampleApp> {
     if (_credentialsDetails != null) {
       print("cred is exsting");
 
-      final credentials = await auth0.credentialsManager.credentials();
-      print(credentials.expiresAt);
-      print(credentials.idToken);
-      print(credentials.accessToken);
-      print(credentials.refreshToken);
+      final credentials = _credentialsDetails;
+      print(credentials!.expiresAt);
     } else {
       print("cred id not having any thing");
     }
@@ -77,7 +77,8 @@ class _ExampleAppState extends State<ExampleApp> {
   Future login() async {
     try {
       if (kIsWeb) {
-        return auth0Web.loginWithRedirect(redirectUrl: 'http://localhost:8000');
+        return auth0Web.loginWithRedirect(
+            redirectUrl: 'https://doctor.cardiofit.in');
       }
 
       var credentials =
@@ -96,7 +97,7 @@ class _ExampleAppState extends State<ExampleApp> {
   Future<void> logout() async {
     try {
       if (kIsWeb) {
-        await auth0Web.logout(returnToUrl: 'http://localhost:8000');
+        await auth0Web.logout(returnToUrl: 'https://doctor.cardiofit.in');
       } else {
         await auth0
             .webAuthentication(scheme: dotenv.env['AUTH0_CUSTOM_SCHEME'])
@@ -133,43 +134,48 @@ class _ExampleAppState extends State<ExampleApp> {
     // print("_cred ${_credentialsDetails?.idToken}");
 
     return MaterialApp(
-      home: Scaffold(
-          body: Padding(
-        padding: const EdgeInsets.only(),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
-          Expanded(
-              child: Row(children: [
+      home: Authenticator(
+        child: Scaffold(
+            body: Padding(
+          padding: const EdgeInsets.only(),
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
+            Expanded(
+                child: Row(children: [
+              _user != null
+                  ? Expanded(
+                      child: DashBoardExample(
+                      onModeChanged: (value) {
+                        setState(() {
+                          _modeTheme = value;
+                        });
+                      },
+                      credentialAuth0: _credentialsDetails!,
+                    ))
+                  : const Expanded(child: HeroWidget())
+            ])),
             _user != null
-                ? Expanded(child: DashBoardExample(
-                    onModeChanged: (value) {
-                      setState(() {
-                        _modeTheme = value;
-                      });
+                ? ElevatedButton(
+                    onPressed: logout,
+                    style: ButtonStyle(
+                      backgroundColor:
+                          MaterialStateProperty.all<Color>(Colors.black),
+                    ),
+                    child: const Text('Logout'),
+                  )
+                : ElevatedButton(
+                    onPressed: () {
+                      login();
                     },
-                  ))
-                : const Expanded(child: HeroWidget())
-          ])),
-          _user != null
-              ? ElevatedButton(
-                  onPressed: logout,
-                  style: ButtonStyle(
-                    backgroundColor:
-                        MaterialStateProperty.all<Color>(Colors.black),
-                  ),
-                  child: const Text('Logout'),
-                )
-              : ElevatedButton(
-                  onPressed: () {
-                    login();
-                  },
-                  style: ButtonStyle(
-                    backgroundColor:
-                        MaterialStateProperty.all<Color>(Colors.black),
-                  ),
-                  child: const Text('Login'),
-                )
-        ]),
-      )),
+                    style: ButtonStyle(
+                      backgroundColor:
+                          MaterialStateProperty.all<Color>(Colors.black),
+                    ),
+                    child: const Text('Login'),
+                  )
+          ]),
+        )),
+      ),
     );
   }
 }

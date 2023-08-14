@@ -1,0 +1,38 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-cardiofitdashboard-dev-102935-authRole",
+      "UnauthRoleArn": "arn:aws:iam::631778078286:role/amplify-cardiofitdashboard-dev-102935-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::631778078286:role/amplify-cardiofitdashboard-dev-102935-authRole",
+      "Region": "us-east-1",
+      "DeploymentBucketName": "amplify-cardiofitdashboard-dev-102935-deployment",
+      "UnauthRoleName": "amplify-cardiofitdashboard-dev-102935-unauthRole",
+      "StackName": "amplify-cardiofitdashboard-dev-102935",
+      "StackId": "arn:aws:cloudformation:us-east-1:631778078286:stack/amplify-cardiofitdashboard-dev-102935/dff07840-3803-11ee-b5dc-12c80bfc1175",
+      "AmplifyAppId": "d1dhuy02elm5tz"
+    },
+    "categories": {
+      "auth": {
+        "cardiofitdashboardae2ef07e": {
+          "userPoolId": "us-east-1_9knT7KCKu",
+          "userPoolName": "vaidhsalaa3e9aa35_userpool_a3e9aa35-dev",
+          "webClientId": "6ijc11rijgtfqe9e56gqm3p2p7",
+          "nativeClientId": "6ijc11rijgtfqe9e56gqm3p2p7",
+          "identityPoolId": "us-east-1:4a7414ce-07d2-4307-add0-bb44465dbd6b",
+          "identityPoolName": "vaidhsalaa3e9aa35_identitypool_a3e9aa35__dev",
+          "allowUnauthenticatedIdentities": true,
+          "authRoleArn": "arn:aws:iam::631778078286:role/amplify-vaidhsala-dev-133928-authRole",
+          "authRoleName": "amplify-vaidhsala-dev-133928-authRole",
+          "unauthRoleArn": "arn:aws:iam::631778078286:role/amplify-vaidhsala-dev-133928-unauthRole",
+          "unauthRoleName": "amplify-vaidhsala-dev-133928-unauthRole"
+        }
+      },
+      "storage": {
+        "cardiofitdashboardb5d8357d": {
+          "bucketName": "amplify-vaidhsala-dev-133928-deployment",
+          "region": "us-east-1"
+        }
+      }
+    }
+  }
+}
